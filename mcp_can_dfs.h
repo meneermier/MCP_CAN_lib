@@ -466,6 +466,9 @@
 #define CAN_CTRLERROR      (5)
 #define CAN_GETTXBFTIMEOUT (6)
 #define CAN_SENDMSGTIMEOUT (7)
+
+#define CAN_WAIT           (8)	// Wait state for CAN [Edited]
+
 #define CAN_FAIL       (0xff)
 
 #define CAN_MAX_CHAR_IN_MESSAGE (8)
@@ -474,3 +477,4 @@
 /*********************************************************************************************************
   END FILE
 *********************************************************************************************************/
+

@@ -40,6 +40,11 @@ class MCP_CAN
     INT8U   m_nfilhit;                                                  // The number of the filter that matched the message
     INT8U   MCPCS;                                                      // Chip Select pin number
     INT8U   mcpMode;                                                    // Mode to return to after configurations are performed.
+	
+	
+	INT8U check_res, check_res1, check_txbuf_n;							// Temp variables for checking send state [Edited]
+    uint16_t check_uiTimeOut = 0;										// Idem [Edited]
+	bool check_active = false;											// Idem [Edited]
     
 
 /*********************************************************************************************************
@@ -102,6 +107,8 @@ class MCP_CAN
     INT8U clearMsg();                                                   // Clear all message to zero
     INT8U readMsg();                                                    // Read message
     INT8U sendMsg();                                                    // Send message
+	
+	INT8U sendMsgShort();                                               // Send message short [Edited]
 
 public:
     MCP_CAN(INT8U _CS);
@@ -112,6 +119,10 @@ public:
     INT8U init_Filt(INT8U num, INT32U ulData);                          // Initialize Filter(s)
     INT8U setMode(INT8U opMode);                                        // Set operational mode
     INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U len, INT8U *buf);      // Send message to transmit buffer
+	
+    INT8U sendMsgBufShort(INT32U id, INT8U ext, INT8U len, INT8U *buf); // Send message to transmit buffer short [Edited]
+	INT8U checkSend();		 											// Check for send status [Edited]
+	
     INT8U sendMsgBuf(INT32U id, INT8U len, INT8U *buf);                 // Send message to transmit buffer
     INT8U readMsgBuf(INT32U *id, INT8U *ext, INT8U *len, INT8U *buf);   // Read message from receive buffer
     INT8U readMsgBuf(INT32U *id, INT8U *len, INT8U *buf);               // Read message from receive buffer

@@ -1064,6 +1064,74 @@ INT8U MCP_CAN::sendMsg()
 }
 
 /*********************************************************************************************************
+** Function name:           sendMsgShort
+** Descriptions:            Send message [Edited]
+*********************************************************************************************************/
+INT8U MCP_CAN::sendMsgShort()
+{
+	check_res, check_res1, check_txbuf_n;
+    check_uiTimeOut = 0;
+	check_active = false;
+
+    do {
+        check_res = mcp2515_getNextFreeTXBuf(&check_txbuf_n);                       /* info = addr.                 */
+        check_uiTimeOut++;
+    } while (check_res == MCP_ALLTXBUSY && (check_uiTimeOut < TIMEOUTVALUE));
+
+    if(check_uiTimeOut == TIMEOUTVALUE) 
+    {   
+        return CAN_GETTXBFTIMEOUT;                                      /* get tx buff time out         */
+    }
+    check_uiTimeOut = 0;
+    mcp2515_write_canMsg(check_txbuf_n);
+    mcp2515_modifyRegister(check_txbuf_n-1 , MCP_TXB_TXREQ_M, MCP_TXB_TXREQ_M );
+    
+    
+    return CAN_WAIT;
+}
+
+/*********************************************************************************************************
+** Function name:           checkSend
+** Descriptions:            Check wether message got sent succesfully [Edited]
+*********************************************************************************************************/
+INT8U MCP_CAN::checkSend()
+{
+	if (!check_active) {
+		check_uiTimeOut++;        
+        check_res1 = mcp2515_readRegister(check_txbuf_n-1);                         /* read send buff ctrl reg 	*/
+        check_res1 = check_res1 & 0x08;                               		
+		check_active = true;
+	}
+	
+    if (check_res1 && (check_uiTimeOut < TIMEOUTVALUE)) {
+        check_uiTimeOut++;        
+        check_res1 = mcp2515_readRegister(check_txbuf_n-1);                         /* read send buff ctrl reg 	*/
+        check_res1 = check_res1 & 0x08;                               		
+    } else {
+		return CAN_OK;
+	}   
+    
+    if(check_uiTimeOut == TIMEOUTVALUE)                                       /* send msg timeout             */	
+        return CAN_SENDMSGTIMEOUT;
+    
+    return CAN_WAIT;
+}
+
+/*********************************************************************************************************
+** Function name:           sendMsgBufShort
+** Descriptions:            Send message to transmitt buffer [Edited]
+*********************************************************************************************************/
+INT8U MCP_CAN::sendMsgBufShort(INT32U id, INT8U ext, INT8U len, INT8U *buf)
+{
+    INT8U res;
+	
+    setMsg(id, 0, ext, len, buf);
+    res = sendMsgShort();
+    
+    return res;
+}
+
+/*********************************************************************************************************
 ** Function name:           sendMsgBuf
 ** Descriptions:            Send message to transmitt buffer
 *********************************************************************************************************/
